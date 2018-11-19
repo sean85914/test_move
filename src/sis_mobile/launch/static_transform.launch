@@ -1,0 +1,5 @@
+<!-- -*- XML -*- -->
+<launch>
+  <!-- Broadcast tranform from map to odom, since we work in virtual environment and not additional sensors, assume the same frame -->
+  <node pkg="tf" name="map2odom" type="static_transform_publisher" args="0 0 0 0 0 0 1 map odom 100" />
+</launch>

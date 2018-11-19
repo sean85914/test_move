@@ -1,0 +1,6 @@
+<!-- -*- XML -*- -->
+<launch>
+  <!-- Include all nodes related to the setup of mobile platform -->
+  <include file="$(find test)/launch/static_transform.launch" />
+  <include file="$(find test)/launch/controller.launch" />
+</launch>
