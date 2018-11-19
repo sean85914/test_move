@@ -1,0 +1,8 @@
+<launch>
+  <arg name="port" default="/dev/ttyACM0"/>
+  <node pkg="sis_mobile" type="pid_controller.py" name="controller" output="screen">
+    <param name="port" value="$(arg port)"/>
+  </node>
+  <node pkg="sis_mobile" type="pub_cmd.py" name="test"/>
+</launch>
+

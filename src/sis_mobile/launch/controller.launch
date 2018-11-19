@@ -1,6 +1,8 @@
 <!-- -*- XML -*- -->
 <launch>
   <!-- Broadcast transform from odom to car_base -->
-  <!-- Since we work in virtual environment, use fake controller -->
-  <node pkg="test" type="pid_controller.py" name="pid_controller" />
+  <arg name="port" default="/dev/ttyACM0"/>
+  <node pkg="sis_mobile" type="pid_controller.py" name="pid_controller" output="screen">
+    <param name="port" value="$(arg port)"/>
+  </node>
 </launch>
