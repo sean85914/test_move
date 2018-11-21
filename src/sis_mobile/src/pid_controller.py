@@ -20,14 +20,14 @@ class Car_controller(object):
 		self.pid_r = PID(1000.0, 500.0, 100.0, sample_time = 0.05) # P/I/D for right wheel
 		self.pid_l = PID(1000.0, 500.0, 100.0, sample_time = 0.05) # P/I/D for left wheel
 		self.pid_r.output_limits = (-255, 255)
-		self.pid_l.output_limits = (-255, 255)
-		self.port = rospy.get_param("~port", '/dev/ttyACM0')
+		self.pid_l.output_limits = (-255, 255) # PWM limit
+		self.port = rospy.get_param("~port", '/dev/ttyACM0') # Arduino port from parameter server
+		self.visual_path = rospy.get_param("~visual_path", False) # If visualize path dead reckoning from encoder data
 		self.ard = serial.Serial(self.port, 57600)
-		self.visual_path = True
-		# flush serial data
+		# Flush serial data
 		for i in range(0, 20):
 			_ = self.ard.readline()
-		print "Data flushed"
+		# Subscriber and publisher
 		self.pub_odom = rospy.Publisher('/wheel_odom', Odometry, queue_size = 10)
 		if self.visual_path:
 			self.pub_path = rospy.Publisher('wheel_odom_path', Path, queue_size = 10)
@@ -42,30 +42,35 @@ class Car_controller(object):
 		self.x = 0
 		self.y = 0
 		self.time = rospy.Time.now()
+		rospy.loginfo("[%s] Initialized", %(rospy.get_name()))
+	# Read data from serial, called by timer
 	def read_data(self, event):
 		data_str = self.ard.readline()
 		data_list = data_str.split()
 		try:
 			data_list = [float(i) for i in data_list]
 		except ValueError:
-			return
+			return # incorrect data
 		if len(data_list) != 3:
-			return 
+			return # incorrect array size
 		if data_list[0] >= 0.12 or data_list[1] >= 0.12:
-			return # weird data
+			return # incorrect data
 		if len(data_list) == 3:
 			self.velocity_right, self.velocity_left, self.heading = data_list
 			# dead reckoning
-			dt = rospy.Time.now().to_sec() - self.time.to_sec()
-			s_r = self.velocity_right * dt
-			s_l = self.velocity_left  * dt
-			self.x = self.x + (s_l+s_r)/2 * cos(self.heading)
+			dt = rospy.Time.now().to_sec() - self.time.to_sec() # time difference
+			self.time = rospy.Time.now() # update time
+			s_r = self.velocity_right * dt # distance right wheel traversed
+			s_l = self.velocity_left  * dt # distance left wheel traversed
+			self.x = self.x + (s_l+s_r)/2 * cos(self.heading) 
 			self.y = self.y + (s_l+s_r)/2 * sin(self.heading)
+			# Broadcast transform from odom to car_base
 			self.tf_br.sendTransform((self.x, self.y, 0),
 				      (0, 0, sin(self.heading/2), cos(self.heading/2)),
 				      rospy.Time.now(),
 				      'car_base',
 				      'odom') 
+			# Publish odometry message
 			odom = Odometry()
 			odom.header.frame_id = 'odom'
 			odom.header.stamp = rospy.Time.now()
@@ -74,6 +79,7 @@ class Car_controller(object):
 			odom.pose.pose.orientation.w = cos(self.heading/2)
 			odom.twist.twist.linear.x = (self.velocity_right+self.velocity_left)/2
 			self.pub_odom.publish(odom)
+			# Visulize the path robot traversed 
 			if self.visual_path:
 				pose = PoseStamped()
 				pose.header.frame_id = "odom"
@@ -84,25 +90,33 @@ class Car_controller(object):
 				pose.pose.orientation.w = cos(self.heading/2)
 				self.path.poses.append(pose)
 				self.pub_path.publish(self.path)
-			self.time = rospy.Time.now() # update time
+	# sub_cmd callback, get two wheel desired velocity and try to complete it through PID controllers
 	def cmd_cb(self, msg):
+		# Reach so v = omega = 0
 		if msg.linear.x == 0 and msg.angular.z == 0:
 			print "reach"
 			self.pid_r.auto_mode = False
 			self.pid_l.auto_mode = False
 			self.motor_motion(0, 0)
-		if not isnan(self.velocity_right): 
+		# Make sure two wheel velocity not invalid values
+		if not isnan(self.velocity_right) and not isnan(self.velocity_left): 
 			self.pid_r.auto_mode = True
 			self.pid_l.auto_mode = True
-			v_d = msg.linear.x 
-			w_d = msg.angular.z # desired one
-			v_d_r = v_d + WIDTH/2*w_d
-			v_d_l = v_d - WIDTH/2*w_d
+			v_d = msg.linear.x # desired velocity
+			w_d = msg.angular.z # desired angular velocity
+			v_d_r = v_d + WIDTH/2*w_d # desired right wheel velocity
+			v_d_l = v_d - WIDTH/2*w_d # desired left wheel velocity
+			# Set the setpoint of controller to desired one
 			self.pid_r.setpoint = v_d_r
 			self.pid_l.setpoint = v_d_l
+			# Get PWM value from controller
 			pwm_r = self.pid_r(self.velocity_right)
 		  	pwm_l = self.pid_l(self.velocity_left)
+			# Send command to motors
 			self.motor_motion(pwm_r, pwm_l)
+	# Send command to motors
+	# pwm_r: right motor PWM value
+	# pwm_l: left motor PWM value
 	def motor_motion(self, pwm_r, pwm_l):
 		print int(pwm_r), int(pwm_l), self.velocity_right, self.velocity_left, self.heading
 		if pwm_r < 0:
@@ -125,8 +139,8 @@ class Car_controller(object):
 		self.left_motor.run(left_state)
 		if pwm_r == 0 and pwm_l == 0:
 			rospy.sleep(2.0)
+	# Shutdown function, call when terminate
 	def shutdown(self):
-		print "shutdown"
 		self.sub_cmd.unregister()
 		rospy.sleep(1.0)
 		self.right_motor.setSpeed(0)
@@ -134,7 +148,6 @@ class Car_controller(object):
 		self.right_motor.run(Adafruit_MotorHAT.RELEASE)
 		self.left_motor.run(Adafruit_MotorHAT.RELEASE)
 		del self.motorhat	
-		print "complete"
 
 if __name__ == '__main__':
 	rospy.init_node('pid_controller_node')
