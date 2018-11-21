@@ -7,5 +7,6 @@
     <rosparam file="$(find sis_mobile)/config/local_costmap_params.yaml"  command="load" />
     <rosparam file="$(find sis_mobile)/config/base_local_planner_params.yaml" command="load" />
     <param name="controller_frequency" value="10.0"/>
+    <param name="recovery_behavior_enabled" value="false"/>
   </node>
 </launch>

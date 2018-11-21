@@ -1,8 +1,10 @@
 <!-- -*- XML -*- -->
 <launch>
   <!-- Broadcast transform from odom to car_base -->
-  <arg name="port" default="/dev/ttyACM0"/>
+  <arg name="port" default="/dev/ttyACM0" doc="Arduino serial port"/>
+  <arg name="visual_path" default="false" doc="Whether if visualize the path robot traversed" />
   <node pkg="sis_mobile" type="pid_controller.py" name="pid_controller" output="screen">
     <param name="port" value="$(arg port)"/>
+    <param name="visual_path" value="$(arg visual_path)"/>
   </node>
 </launch>
