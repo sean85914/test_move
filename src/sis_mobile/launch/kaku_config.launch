@@ -1,6 +1,0 @@
-<!-- -*- XML -*- -->
-<launch>
-  <!-- Include all nodes related to the setup of mobile platform -->
-  <include file="$(find sis_mobile)/launch/static_transform.launch" />
-  <include file="$(find sis_mobile)/launch/controller.launch" />
-</launch>

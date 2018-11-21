@@ -15,15 +15,17 @@ int main(int argc, char** argv)
   
   move_base_msgs::MoveBaseGoal goal;
 
-  goal.target_pose.header.frame_id = "odom";
+  goal.target_pose.header.frame_id = "map";
   goal.target_pose.header.stamp = ros::Time::now();
-  goal.target_pose.pose.position.x = 1.0;
-  goal.target_pose.pose.orientation.w = 1.0;
+  goal.target_pose.pose.position.x = 0.0;
+  goal.target_pose.pose.position.y = 0.0;
+  goal.target_pose.pose.orientation.z = 0.707;
+  goal.target_pose.pose.orientation.w = 0.707;
 
   ROS_INFO("Sending goal");
   ac.sendGoal(goal);
 
-  ac.waitForResult();
+  ac.waitForResult(ros::Duration(5.0));
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Succeeded");
   else
