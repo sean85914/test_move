@@ -17,8 +17,8 @@ class Car_controller(object):
 		self.motorhat = Adafruit_MotorHAT(0x60)
 		self.left_motor = self.motorhat.getMotor(1)
 		self.right_motor = self.motorhat.getMotor(2)
-		self.pid_r = PID(1000.0, 500.0, 100.0, sample_time = 0.05) # P/I/D for right wheel
-		self.pid_l = PID(1000.0, 500.0, 100.0, sample_time = 0.05) # P/I/D for left wheel
+		self.pid_r = PID(1500.0, 500.0, 100.0, sample_time = 0.05) # P/I/D for right wheel
+		self.pid_l = PID(1500.0, 500.0, 100.0, sample_time = 0.05) # P/I/D for left wheel
 		self.pid_r.output_limits = (-255, 255)
 		self.pid_l.output_limits = (-255, 255) # PWM limit
 		self.port = rospy.get_param("~port", '/dev/ttyACM0') # Arduino port from parameter server
@@ -35,14 +35,14 @@ class Car_controller(object):
 			self.path.header.frame_id = 'odom'
 		self.sub_cmd  = rospy.Subscriber('/cmd_vel', Twist, self.cmd_cb,  queue_size = 1)
 		self.tf_br = tf.TransformBroadcaster()
-		rospy.Timer(rospy.Duration(0.01), self.read_data) # 100Hz
+		rospy.Timer(rospy.Duration(1./60), self.read_data) # 60Hz
 		self.velocity_right = None
 		self.velocity_left  = None
 		self.heading = 0
 		self.x = 0
 		self.y = 0
 		self.time = rospy.Time.now()
-		rospy.loginfo("[%s] Initialized", %(rospy.get_name()))
+		rospy.loginfo("[%s] Initialized"  %(rospy.get_name()))
 	# Read data from serial, called by timer
 	def read_data(self, event):
 		data_str = self.ard.readline()
@@ -118,20 +118,20 @@ class Car_controller(object):
 	# pwm_r: right motor PWM value
 	# pwm_l: left motor PWM value
 	def motor_motion(self, pwm_r, pwm_l):
-		print int(pwm_r), int(pwm_l), self.velocity_right, self.velocity_left, self.heading
+		print self.x, " ", self.y, " ", self.heading
 		if pwm_r < 0:
 			right_state = Adafruit_MotorHAT.BACKWARD
 			pwm_r = -pwm_r
 		elif pwm_r > 0:
 			right_state = Adafruit_MotorHAT.FORWARD
-                else:
+		else:
                         right_state = Adafruit_MotorHAT.RELEASE
 		if pwm_l < 0:
 			left_state  = Adafruit_MotorHAT.BACKWARD
 			pwm_l = -pwm_l
 		elif pwm_l > 0:
 			left_state = Adafruit_MotorHAT.FORWARD
-                else:
+		else:
                         left_state = Adafruit_MotorHAT.RELEASE
 		self.right_motor.setSpeed(int(pwm_r))
 		self.left_motor.setSpeed(int(pwm_l))
