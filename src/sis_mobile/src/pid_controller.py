@@ -127,21 +127,21 @@ class Car_controller(object):
 	# pwm_r: right motor PWM value
 	# pwm_l: left motor PWM value
 	def motor_motion(self, pwm_r, pwm_l):
-		print self.x, " ", self.y, " ", self.heading
+		print self.v_r, " ", self.v_l
 		if pwm_r < 0:
 			right_state = Adafruit_MotorHAT.BACKWARD
 			pwm_r = -pwm_r
 		elif pwm_r > 0:
 			right_state = Adafruit_MotorHAT.FORWARD
 		else:
-                        right_state = Adafruit_MotorHAT.RELEASE
+			right_state = Adafruit_MotorHAT.RELEASE
 		if pwm_l < 0:
 			left_state  = Adafruit_MotorHAT.BACKWARD
 			pwm_l = -pwm_l
 		elif pwm_l > 0:
 			left_state = Adafruit_MotorHAT.FORWARD
 		else:
-                        left_state = Adafruit_MotorHAT.RELEASE
+			left_state = Adafruit_MotorHAT.RELEASE
 		self.right_motor.setSpeed(int(pwm_r))
 		self.left_motor.setSpeed(int(pwm_l))
 		self.right_motor.run(right_state)

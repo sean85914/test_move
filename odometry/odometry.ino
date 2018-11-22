@@ -38,7 +38,7 @@ void loop()
     encoder_pos_R = encoder_pre_R;
     // print data in serial
     // data format:
-    // v_r v_l theta
+    // v_r v_l
     Serial.print(v_r); Serial.print(" ");
     Serial.println(v_l);
   }
