@@ -1,4 +1,4 @@
-/* Using encoder to calculate the angular velocity of the motors
+/* Using encoder to calculate the linear velocity of the motors
  * and transport them through serial to PI for control and dead  
  * reckoning, for usage of differential-drive mobile robot.
  * Developed by Sean Lu at Nov., 2018. 
@@ -57,4 +57,4 @@ void Encoder_R()
 {
   if(digitalRead(SPD_INT_R2) == HIGH) --encoder_pre_R;
   else ++encoder_pre_R;
-}
+} 
