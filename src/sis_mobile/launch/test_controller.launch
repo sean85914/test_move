@@ -7,6 +7,6 @@
     <param name="port" value="$(arg port)"/>
     <param name="visual_path" value="$(arg visual_path)"/>
   </node>
-  <node pkg="sis_mobile" type="pub_cmd.py" name="test" args="$(arg vel) $(arg ang_vel)"/>
+  <node pkg="sis_mobile" type="pub_cmd.py" name="test" args="$(arg vel) $(arg ang_vel)" output="screen"/>
 </launch>
 
