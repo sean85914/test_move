@@ -7,13 +7,14 @@
 volatile long encoder_pre_L, encoder_pre_R; // present
 volatile long encoder_pos_L, encoder_pos_R; // post
 long time_;
-double theta = 0;
-double hz = 100; // 100Hz
+double theta;
+double hz = 50; // 50Hz
 
 void setup()
 {
   pinMode(SPD_INT_L2, INPUT);
   pinMode(SPD_INT_R2, INPUT);
+  theta = 0;
   encoder_pre_L = 0; encoder_pre_R = 0;
   encoder_pos_L = 0; encoder_pos_R = 0;
   Serial.begin(57600);
@@ -29,11 +30,9 @@ void loop()
 {
   if(millis() - time_ >= 1000/hz) {
     long dt = (millis() - time_); // ms
-    double s_l = (encoder_pre_L - encoder_pos_L)*2*PI/CPR * RADIUS, v_l = s_l/dt * 1000;
-    double s_r = (encoder_pre_R - encoder_pos_R)*2*PI/CPR * RADIUS, v_r = s_r/dt * 1000;
-    theta += (s_r-s_l)/WIDTH;
-    if(theta>2*PI)  theta-=2*PI;
-    if(theta<0) theta+=2*PI;
+    time_ = millis();
+    double v_l = (encoder_pre_L - encoder_pos_L)*2*PI/CPR * RADIUS / dt * 1000;
+    double v_r = (encoder_pre_R - encoder_pos_R)*2*PI/CPR * RADIUS / dt * 1000;
     // update encoder
     encoder_pos_L = encoder_pre_L;
     encoder_pos_R = encoder_pre_R;
@@ -41,9 +40,7 @@ void loop()
     // data format:
     // v_r v_l theta
     Serial.print(v_r); Serial.print(" ");
-    Serial.print(v_l); Serial.print(" ");
-    Serial.println(theta);
-    time_ = millis();
+    Serial.println(v_l);
   }
 }
 

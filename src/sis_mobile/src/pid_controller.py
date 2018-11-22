@@ -35,9 +35,9 @@ class Car_controller(object):
 			self.path.header.frame_id = 'odom'
 		self.sub_cmd  = rospy.Subscriber('/cmd_vel', Twist, self.cmd_cb,  queue_size = 1)
 		self.tf_br = tf.TransformBroadcaster()
-		rospy.Timer(rospy.Duration(1./60), self.read_data) # 60Hz
-		self.velocity_right = None
-		self.velocity_left  = None
+		rospy.Timer(rospy.Duration(1/60.), self.read_data) # 100Hz
+		self.v_r = None
+		self.v_l  = None
 		self.heading = 0
 		self.x = 0
 		self.y = 0
@@ -51,19 +51,28 @@ class Car_controller(object):
 			data_list = [float(i) for i in data_list]
 		except ValueError:
 			return # incorrect data
-		if len(data_list) != 3:
+		if len(data_list) != 2:
 			return # incorrect array size
 		if data_list[0] >= 0.12 or data_list[1] >= 0.12:
 			return # incorrect data
-		if len(data_list) == 3:
-			self.velocity_right, self.velocity_left, self.heading = data_list
+		if len(data_list) == 2:
+			self.v_r, self.v_l = data_list
 			# dead reckoning
 			dt = rospy.Time.now().to_sec() - self.time.to_sec() # time difference
 			self.time = rospy.Time.now() # update time
-			s_r = self.velocity_right * dt # distance right wheel traversed
-			s_l = self.velocity_left  * dt # distance left wheel traversed
-			self.x = self.x + (s_l+s_r)/2 * cos(self.heading) 
-			self.y = self.y + (s_l+s_r)/2 * sin(self.heading)
+			v = (self.v_r + self.v_l) / 2
+			omega = (self.v_r - self.v_l) / WIDTH
+			sth = sin(self.heading), cth = cos(self.heading)
+			dth = omega * dt
+			if self.v_r != self.v_l:
+				R = (self.v_r + self.v_l) / (self.v_r - self.v_l) * WIDTH / 2
+				A = cos(dth) -1, B = sin(dth)
+				self.x += R*(sth*A  + cth*B)
+				self.y += R*(cth*-A + sth*B)
+			else: # go straight
+				self.x += v*dt*cth
+				self.y += v*dt*sth
+			self.heading += dth
 			# Broadcast transform from odom to car_base
 			self.tf_br.sendTransform((self.x, self.y, 0),
 				      (0, 0, sin(self.heading/2), cos(self.heading/2)),
@@ -77,7 +86,7 @@ class Car_controller(object):
 			odom.child_frame_id = 'car_base'
 			odom.pose.pose.orientation.z = sin(self.heading/2)
 			odom.pose.pose.orientation.w = cos(self.heading/2)
-			odom.twist.twist.linear.x = (self.velocity_right+self.velocity_left)/2
+			odom.twist.twist.linear.x = v
 			self.pub_odom.publish(odom)
 			# Visulize the path robot traversed 
 			if self.visual_path:
@@ -110,8 +119,8 @@ class Car_controller(object):
 			self.pid_r.setpoint = v_d_r
 			self.pid_l.setpoint = v_d_l
 			# Get PWM value from controller
-			pwm_r = self.pid_r(self.velocity_right)
-		  	pwm_l = self.pid_l(self.velocity_left)
+			pwm_r = self.pid_r(self.v_r)
+		  	pwm_l = self.pid_l(self.v_l)
 			# Send command to motors
 			self.motor_motion(pwm_r, pwm_l)
 	# Send command to motors
