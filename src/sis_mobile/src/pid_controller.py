@@ -12,6 +12,17 @@ from geometry_msgs.msg import Twist, PoseStamped
 WIDTH = 0.179
 RADIUS = 0.032
 
+# Check if the list is in range (low, up)
+# Param:
+# 	value_list:  given value list
+#   up:          upper bound
+#   low:         lower bound
+def in_range(value_list, up, low):
+	for i in range(0, len(value_list)):
+		if value_list[i] > up or value_list[i] < low:
+			return False
+	return True
+
 class Car_controller(object):
 	def __init__(self):
 		self.motorhat = Adafruit_MotorHAT(0x60)
@@ -48,8 +59,8 @@ class Car_controller(object):
 			return # incorrect data
 		if len(data_list) != 2:
 			return # incorrect array size
-		if data_list[0] >= 0.12 or data_list[1] >= 0.12:
-			return # incorrect data
+		if not in_range(data_list, 0.12, -0.12):
+			return # data not in range
 		self.v_r, self.v_l = data_list
 		# dead reckoning
 		dt = rospy.Time.now().to_sec() - self.time.to_sec() # time difference
