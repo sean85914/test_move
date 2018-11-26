@@ -34,8 +34,8 @@ void loop()
     long dt = (millis() - time_); // Time difference, in ms
     time_ = millis(); // Update time
     // Calculate linear velocity
-    double v_l = (encoder_pre_L - encoder_pos_L)*2*PI/CPR * RADIUS / dt * 1000;
-    double v_r = (encoder_pre_R - encoder_pos_R)*2*PI/CPR * RADIUS / dt * 1000;
+    double v_l = (encoder_pre_L - encoder_pos_L)*2*PI/CPR * RADIUS / dt * 1000 * 100; // cm/s
+    double v_r = (encoder_pre_R - encoder_pos_R)*2*PI/CPR * RADIUS / dt * 1000 * 100;
     // Update encoder
     encoder_pos_L = encoder_pre_L;
     encoder_pos_R = encoder_pre_R;
