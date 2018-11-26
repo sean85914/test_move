@@ -50,40 +50,39 @@ class Car_controller(object):
 			return # incorrect array size
 		if data_list[0] >= 0.12 or data_list[1] >= 0.12:
 			return # incorrect data
-		if len(data_list) == 2:
-			self.v_r, self.v_l = data_list
-			# dead reckoning
-			dt = rospy.Time.now().to_sec() - self.time.to_sec() # time difference
-			self.time = rospy.Time.now() # update time
-			v = (self.v_r + self.v_l) / 2
-			omega = (self.v_r - self.v_l) / WIDTH
-			sth = sin(self.heading), cth = cos(self.heading)
-			dth = omega * dt
-			if self.v_r != self.v_l:
-				R = (self.v_r + self.v_l) / (self.v_r - self.v_l) * WIDTH / 2
-				A = cos(dth) -1, B = sin(dth)
-				self.x += R*(sth*A  + cth*B)
-				self.y += R*(cth*-A + sth*B)
-			else: # go straight
-				self.x += v*dt*cth
-				self.y += v*dt*sth
-			self.heading += dth
-			# Broadcast transform from odom to car_base
-			self.tf_br.sendTransform((self.x, self.y, 0),
-				      (0, 0, sin(self.heading/2), cos(self.heading/2)),
-				      rospy.Time.now(),
-				      'car_base',
-				      'odom') 
-			# Publish odometry message
-			odom = Odometry()
-			odom.header.frame_id = 'odom'
-			odom.header.stamp = rospy.Time.now()
-			odom.child_frame_id = 'car_base'
-			odom.pose.pose.orientation.z = sin(self.heading/2)
-			odom.pose.pose.orientation.w = cos(self.heading/2)
-			odom.twist.twist.linear.x = v
-			self.pub_odom.publish(odom)
-			# Visulize the path robot traversed 
+		self.v_r, self.v_l = data_list
+		# dead reckoning
+		dt = rospy.Time.now().to_sec() - self.time.to_sec() # time difference
+		self.time = rospy.Time.now() # update time
+		v = (self.v_r + self.v_l) / 2
+		omega = (self.v_r - self.v_l) / WIDTH
+		sth = sin(self.heading), cth = cos(self.heading)
+		dth = omega * dt
+		if self.v_r != self.v_l:
+			R = (self.v_r + self.v_l) / (self.v_r - self.v_l) * WIDTH / 2
+			A = cos(dth) -1, B = sin(dth)
+			self.x += R*(sth*A  + cth*B)
+			self.y += R*(cth*-A + sth*B)
+		else: # go straight
+			self.x += v*dt*cth
+			self.y += v*dt*sth
+		self.heading += dth
+		# Broadcast transform from odom to car_base
+		self.tf_br.sendTransform((self.x, self.y, 0),
+			      (0, 0, sin(self.heading/2), cos(self.heading/2)),
+			      rospy.Time.now(),
+			      'car_base',
+			      'odom') 
+		# Publish odometry message
+		odom = Odometry()
+		odom.header.frame_id = 'odom'
+		odom.header.stamp = rospy.Time.now()
+		odom.child_frame_id = 'car_base'
+		odom.pose.pose.orientation.z = sin(self.heading/2)
+		odom.pose.pose.orientation.w = cos(self.heading/2)
+		odom.twist.twist.linear.x = v
+		self.pub_odom.publish(odom)
+		# Visulize the path robot traversed 
 	# sub_cmd callback, get two wheel desired velocity and try to complete it through PID controllers
 	def cmd_cb(self, msg):
 		# Reach so v = omega = 0
