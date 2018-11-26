@@ -43,7 +43,7 @@ class Car_controller(object):
 		data_str = self.ard.readline()
 		data_list = data_str.split()
 		try:
-			data_list = [float(i) for i in data_list]
+			data_list = [float(i)/100 for i in data_list]
 		except ValueError:
 			return # incorrect data
 		if len(data_list) != 2:
