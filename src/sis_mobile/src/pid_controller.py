@@ -44,7 +44,7 @@ class Car_controller(object):
 		self.pub_odom = rospy.Publisher('/wheel_odom', Odometry, queue_size = 10)
 		self.sub_cmd  = rospy.Subscriber('/cmd_vel', Twist, self.cmd_cb,  queue_size = 1)
 		self.tf_br = tf.TransformBroadcaster()
-		rospy.Timer(rospy.Duration(1/60.), self.read_data) # 100Hz
+		rospy.Timer(rospy.Duration(1/60.), self.read_data) # 60Hz
 		self.v_r = None
 		self.v_l  = None
 		self.heading = 0
@@ -70,11 +70,13 @@ class Car_controller(object):
 		self.time = rospy.Time.now() # update time
 		v = (self.v_r + self.v_l) / 2
 		omega = (self.v_r - self.v_l) / WIDTH
-		sth = sin(self.heading), cth = cos(self.heading)
+		sth = sin(self.heading)
+		cth = cos(self.heading)
 		dth = omega * dt
 		if self.v_r != self.v_l:
 			R = (self.v_r + self.v_l) / (self.v_r - self.v_l) * WIDTH / 2
-			A = cos(dth) -1, B = sin(dth)
+			A = cos(dth) -1
+			B = sin(dth)
 			self.x += R*(sth*A  + cth*B)
 			self.y += R*(cth*-A + sth*B)
 		else: # go straight

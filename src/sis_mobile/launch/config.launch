@@ -1,9 +1,11 @@
 <!-- -*- XML -*- -->
 <launch>
   <arg name="port" default="/dev/ttyACM0"/>
+  <arg name="mecanum" default="false"/>
   <!-- Include all nodes related to the setup of mobile platform -->
   <include file="$(find sis_mobile)/launch/static_transform.launch" />
   <include file="$(find sis_mobile)/launch/controller.launch">
-    <param name="port" value="$(arg port)"/>
+    <arg name="port" value="$(arg port)"/>
+    <arg name="mecanum" value="$(arg mecanum)"/>
   </include>
 </launch>

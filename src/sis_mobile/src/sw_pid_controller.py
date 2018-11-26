@@ -34,10 +34,14 @@ class Car_controller(object):
 		self.fl = self.motorhat.getMotor(2) # Front right
 		self.rr = self.motorhat.getMotor(3) # Rear left
 		self.rl = self.motorhat.getMotor(4) # Rear right
-		self.pid_fr = PID(1500.0, 500.0, 100.0, sample_time = 0.05)
-		self.pid_fl = PID(1500.0, 500.0, 100.0, sample_time = 0.05)
-		self.pid_rr = PID(1500.0, 500.0, 100.0, sample_time = 0.05)
-		self.pid_rl = PID(1500.0, 500.0, 100.0, sample_time = 0.05)
+		self.pid_fr = PID(30.0, 10.0, 10.0, sample_time = 0.05)
+		self.pid_fl = PID(30.0, 10.0, 10.0, sample_time = 0.05)
+		self.pid_rr = PID(30.0, 10.0, 10.0, sample_time = 0.05)
+		self.pid_rl = PID(30.0, 10.0, 10.0, sample_time = 0.05)
+		self.pid_fr.output_limits = (-255, 255)
+		self.pid_fl.putput_limits = (-255, 255)
+		self.pid_rr.output_limits = (-255, 255)
+		self.pid_rl.output_limits = (-255, 255)
 		self.port = rospy.get_param('~port', '/dev/ttyACM0')
 		self.ard = serial.Serial(self.port, 57600)
 		# Flush serial data
@@ -68,13 +72,12 @@ class Car_controller(object):
 		try:
 			data_list = [float(i)/100 for i in data_list]
 		except ValueError:
-			print "1"
 			return # incorrect data
+		#print data_list
 		if len(data_list) != 4:
-			print "2"
 			return # incorrect array size
-		#if not in_range(data_list, -3.77, 3.77): # 36RPM -> 3.7699 rad/s
-			#return # data not in range
+		if not in_range(data_list, -5.0, 5.0): # 36RPM -> 3.7699 rad/s
+			return # data not in range
 		self.w_fl, self.w_fr, self.w_rl, self.w_rr = data_list
 		# dead reckoning
 		dt = rospy.Time.now().to_sec() - self.time.to_sec() # time difference
@@ -82,6 +85,7 @@ class Car_controller(object):
 		self.v_x = (self.w_fl + self.w_fr + self.w_rl + self.w_rr) * R / 4
 		self.v_y = (-self.w_fl + self.w_fr + self.w_rl - self.w_rr) * R / 4
 		self.omega = (-self.w_fl + self.w_fr - self.w_rl + self.w_rr) * R / 4 / (LX + LY)
+		print [self.v_x, self.v_y, self.omega]
 		self.x = self.x + self.v_x * dt
 		self.y = self.y + self.v_y * dt
 		self.heading = self.heading + self.omega * dt
@@ -108,15 +112,18 @@ class Car_controller(object):
 			self.pid_fl.auto_mode = False
 			self.pid_fr.auto_mode = False
 			self.pid_rl.auto_mode = False
-			self.pud_rr.auto_mode = False
+			self.pid_rr.auto_mode = False
+			self.reach = True
 			self.motor_motion(0, 0, 0, 0)
+		else:
+			self.reach = False
 		# Make sure four wheel angular velocity not invalid value
 		if not isnan(self.w_fl) and not isnan(self.w_fr) and not isnan(self.w_rl) \
 		and not isnan(self.w_rr):
 			self.pid_fl.auto_mode = True
 			self.pid_fr.auto_mode = True
 			self.pid_rl.auto_mode = True
-			self.pid_rr.auto_node = True
+			self.pid_rr.auto_mode = True
 			vx_d = msg.linear.x # desired x velocity
 			vy_d = msg.linear.y # desired y velocity
 			omega_d = msg.angular.z # desired z angular velocity
@@ -124,12 +131,13 @@ class Car_controller(object):
 			self.pid_fr.setpoint = (vx_d + vy_d + (LX+LY)*omega_d) / R
 			self.pid_rl.setpoint = (vx_d + vy_d - (LX+LY)*omega_d) / R
 			self.pid_rr.setpoint = (vx_d - vy_d + (LX+LY)*omega_d) / R
-			# Get PWM value from controller
+			# Get PWM value from controlleri
 			pwm_fl = self.pid_fl(self.w_fl)
 			pwm_fr = self.pid_fr(self.w_fr)
 			pwm_rl = self.pid_rl(self.w_rl)
 			pwm_rr = self.pid_rr(self.w_rr)
-			self.motor_motion(pwm_fl, pwm_fr, pwm_rl, pwm_rr)
+			if self.reach is not True:
+				self.motor_motion(pwm_fl, pwm_fr, pwm_rl, pwm_rr)
 	# send command to motors
 	# pwm_fl: PWM value for front left motor 
 	# pwm_fr: PWM value for front right motor
@@ -138,7 +146,7 @@ class Car_controller(object):
 	def motor_motion(self, pwm_fl, pwm_fr, pwm_rl, pwm_rr):
 		print self.w_fl, " ", self.w_fr, " ", self.w_rl, " ", self.w_rr
 		# FL
-		if pwm_fl < 0:
+		if  pwm_fl < 0:
 			fl_state = Adafruit_MotorHAT.BACKWARD
 			pwm_fl = -pwm_fl
 		elif pwm_fl > 0:
