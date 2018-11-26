@@ -1,7 +1,7 @@
 <!-- -*- XML -*- -->
 <launch>
-  <!-- Broadcast transform from odom to car_base -->
   <arg name="port" default="/dev/ttyACM0" doc="Arduino serial port"/>
+  <!-- Broadcast transform from odom to car_base -->
   <node pkg="sis_mobile" type="pid_controller.py" name="pid_controller" output="screen">
     <param name="port" value="$(arg port)"/>
   </node>
