@@ -22,17 +22,12 @@ class Car_controller(object):
 		self.pid_r.output_limits = (-255, 255)
 		self.pid_l.output_limits = (-255, 255) # PWM limit
 		self.port = rospy.get_param("~port", '/dev/ttyACM0') # Arduino port from parameter server
-		self.visual_path = rospy.get_param("~visual_path", False) # If visualize path dead reckoning from encoder data
 		self.ard = serial.Serial(self.port, 57600)
 		# Flush serial data
 		for i in range(0, 20):
 			_ = self.ard.readline()
 		# Subscriber and publisher
 		self.pub_odom = rospy.Publisher('/wheel_odom', Odometry, queue_size = 10)
-		if self.visual_path:
-			self.pub_path = rospy.Publisher('wheel_odom_path', Path, queue_size = 10)
-			self.path = Path()
-			self.path.header.frame_id = 'odom'
 		self.sub_cmd  = rospy.Subscriber('/cmd_vel', Twist, self.cmd_cb,  queue_size = 1)
 		self.tf_br = tf.TransformBroadcaster()
 		rospy.Timer(rospy.Duration(1/60.), self.read_data) # 100Hz
@@ -89,16 +84,6 @@ class Car_controller(object):
 			odom.twist.twist.linear.x = v
 			self.pub_odom.publish(odom)
 			# Visulize the path robot traversed 
-			if self.visual_path:
-				pose = PoseStamped()
-				pose.header.frame_id = "odom"
-				pose.header.stamp = rospy.Time.now()
-				pose.pose.position.x = self.x
-				pose.pose.position.y = self.y
-				pose.pose.orientation.z = sin(self.heading/2)
-				pose.pose.orientation.w = cos(self.heading/2)
-				self.path.poses.append(pose)
-				self.pub_path.publish(self.path)
 	# sub_cmd callback, get two wheel desired velocity and try to complete it through PID controllers
 	def cmd_cb(self, msg):
 		# Reach so v = omega = 0

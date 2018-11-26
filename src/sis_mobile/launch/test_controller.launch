@@ -1,11 +1,10 @@
+<!-- -*- XML -*- -->
 <launch>
   <arg name="port" default="/dev/ttyACM0"/>
-  <arg name="visual_path" default="false"/>
   <arg name="vel" doc="velocity"/>
   <arg name="ang_vel" doc="angular velocity"/>
   <node pkg="sis_mobile" type="pid_controller.py" name="controller" output="screen">
     <param name="port" value="$(arg port)"/>
-    <param name="visual_path" value="$(arg visual_path)"/>
   </node>
   <node pkg="sis_mobile" type="pub_cmd.py" name="test" args="$(arg vel) $(arg ang_vel)" output="screen"/>
 </launch>
