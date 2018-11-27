@@ -108,7 +108,7 @@ class Car_controller(object):
 			self.pid_l.auto_mode = False
 			self.motor_motion(0, 0)
 		# Make sure two wheel velocity not invalid values
-		if not isnan(self.velocity_right) and not isnan(self.velocity_left): 
+		if not isnan(self.v_r) and not isnan(self.v_l): 
 			self.pid_r.auto_mode = True
 			self.pid_l.auto_mode = True
 			v_d = msg.linear.x # desired velocity

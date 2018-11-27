@@ -38,7 +38,7 @@ int main(int argc, char** argv)
   ROS_INFO("Sending first goal");
   ac.sendGoal(goal);
   // Wait for result with 15 seconds, if fail, cancel the goal
-  ac.waitForResult(ros::Duration(15.0));
+  ac.waitForResult(ros::Duration(20.0));
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach first waypoint");
   else{
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
   goal = getGoal(1.0, 1.0, 0.0, 0.0, 0.707, 0.707);
   ROS_INFO("Sending second goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration(15.0));
+  ac.waitForResult(ros::Duration(20.0));
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach second waypoint");
   else{
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
   goal = getGoal(0.0, 1.0, 0.0, 0.0, 1.0, 0.0);
   ROS_INFO("Sending third goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration(15.0));
+  ac.waitForResult(ros::Duration(20.0));
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach third waypoint");
   else{
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
   goal = getGoal(0.0, 0.0, 0.0, 0.0, -0.707, 0.707);
   ROS_INFO("Sending fourth goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration(15.0));
+  ac.waitForResult(ros::Duration(20.0));
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach fourth waypoint");
   else{
