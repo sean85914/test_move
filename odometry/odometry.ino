@@ -11,7 +11,7 @@
 volatile long encoder_pre_L, encoder_pre_R; // present
 volatile long encoder_pos_L, encoder_pos_R; // post
 long time_;
-double hz = 50; // 50Hz
+double hz = 80; // 80Hz
 
 void setup()
 {
