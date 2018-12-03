@@ -1,5 +1,6 @@
 <!-- -*- XML -*- -->
 <launch>
-  <!-- Broadcast tranform from map to odom, since we work in virtual environment and not additional sensors, assume the same frame -->
+  <!-- Transform from map to odom and car_base to po_camera -->
   <node pkg="tf" name="map2odom" type="static_transform_publisher" args="0 0 0 0 0 0 1 map odom 100" />
+  <node pkg="tf" name="carbase2picam" type="static_transform_publisher" args="-0.019 0 0.37 -1.57 0 -1.57 car_base pi_camera 100"/>
 </launch>
