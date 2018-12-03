@@ -33,34 +33,34 @@ int main(int argc, char** argv)
   }
   // Declare a goal argument
   move_base_msgs::MoveBaseGoal goal;
-  // First, go ahead 1 meter without changing heading
-  goal = getGoal(1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+  // First, go ahead 0.6 meter without changing heading
+  goal = getGoal(0.6, 0.0, 0.0, 0.0, 0.0, 1.0);
   ROS_INFO("Sending first goal");
   ac.sendGoal(goal);
-  // Wait for result with 15 seconds, if fail, cancel the goal
-  ac.waitForResult(ros::Duration());
+  // Wait for result, if fail, cancel the goal
+  ac.waitForResult();
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach first waypoint");
   else{
     ROS_INFO("Failed to reach forst waypoint");
     ac.cancelGoal();
   } ros::Duration(1.0).sleep();
-  // Second, move 1 meter to the left, heading set to pi/2
-  goal = getGoal(1.0, 1.0, 0.0, 0.0, 0.707, 0.707);
+  // Second, move 0.6 meter to the left, heading set to pi/2
+  goal = getGoal(0.6, 0.6, 0.0, 0.0, 0.707, 0.707);
   ROS_INFO("Sending second goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration());
+  ac.waitForResult();
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach second waypoint");
   else{
     ROS_INFO("Failed to reach second waypoint");
     ac.cancelGoal();
   } ros::Duration(1.0).sleep();
-  // Third, return to the 1 meter left from the orgin with heading pi
-  goal = getGoal(0.0, 1.0, 0.0, 0.0, 1.0, 0.0);
+  // Third, return to the 0.6 meter left from the orgin with heading pi
+  goal = getGoal(0.0, 0.6, 0.0, 0.0, 1.0, 0.0);
   ROS_INFO("Sending third goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration());
+  ac.waitForResult();
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach third waypoint");
   else{
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
   goal = getGoal(0.0, 0.0, 0.0, 0.0, -0.707, 0.707);
   ROS_INFO("Sending fourth goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration());
+  ac.waitForResult();
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach fourth waypoint");
   else{

@@ -59,14 +59,17 @@ class Car_controller(object):
 		try:
 			data_list = [float(i)/100 for i in data_list]
 		except ValueError:
+			print "incorrect data"
 			return # incorrect data
-		if len(data_list) != 2:
+		if len(data_list) != 3:
+			print "incorrect array size"
 			return # incorrect array size
 		# We use 36 RPM motor -> 36/60*2*pi*0.032 = 0.12 m/s
 		# Take two times as limitation
-		if not in_range(data_list, -0.24, 0.24):
+		if not in_range(data_list[0:2], -0.24, 0.24):
+			print "out of range"
 			return # data not in range
-		self.v_r, self.v_l = data_list
+		self.v_r, self.v_l, heading = data_list
 		# dead reckoning
 		dt = rospy.Time.now().to_sec() - self.time.to_sec() # time difference
 		self.time = rospy.Time.now() # update time
@@ -84,7 +87,7 @@ class Car_controller(object):
 		else: # go straight
 			self.x += v*dt*cth
 			self.y += v*dt*sth
-		self.heading += dth
+		self.heading = heading
 		# Broadcast transform from odom to car_base
 		self.tf_br.sendTransform((self.x, self.y, 0),
 			      (0, 0, sin(self.heading/2), cos(self.heading/2)),
@@ -95,10 +98,12 @@ class Car_controller(object):
 		odom = Odometry()
 		odom.header.frame_id = 'odom'
 		odom.header.stamp = rospy.Time.now()
-		odom.child_frame_id = 'car_base'
+		#odom.child_frame_id = 'car_base'
 		odom.pose.pose.orientation.z = sin(self.heading/2)
 		odom.pose.pose.orientation.w = cos(self.heading/2)
-		odom.twist.twist.linear.x = v
+		#odom.twist.twist.linear.x = v
+		odom.pose.pose.position.x = self.x
+		odom.pose.pose.position.y = self.y
 		self.pub_odom.publish(odom)
 		# Visulize the path robot traversed 
 	# sub_cmd callback, get two wheel desired velocity and try to complete it through PID controllers
@@ -129,7 +134,7 @@ class Car_controller(object):
 	# pwm_r: right motor PWM value
 	# pwm_l: left motor PWM value
 	def motor_motion(self, pwm_r, pwm_l):
-		print self.v_r, " ", self.v_l
+		#print self.v_r, " ", self.v_l
 		if pwm_r < 0:
 			right_state = Adafruit_MotorHAT.BACKWARD
 			pwm_r = -pwm_r
@@ -149,7 +154,7 @@ class Car_controller(object):
 		self.right_motor.run(right_state)
 		self.left_motor.run(left_state)
 		if pwm_r == 0 and pwm_l == 0:
-			rospy.sleep(2.0)
+			rospy.sleep(0.5)
 	# Shutdown function, call when terminate
 	def shutdown(self):
 		self.sub_cmd.unregister()
