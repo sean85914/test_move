@@ -44,7 +44,7 @@ class Car_controller(object):
 		self.pub_odom = rospy.Publisher('/wheel_odom', Odometry, queue_size = 10)
 		self.sub_cmd  = rospy.Subscriber('/cmd_vel', Twist, self.cmd_cb,  queue_size = 1)
 		self.tf_br = tf.TransformBroadcaster()
-		rospy.Timer(rospy.Duration(1/60.), self.read_data) # 60Hz
+		rospy.Timer(rospy.Duration(1/100.), self.read_data) # 100Hz
 		self.v_r = None
 		self.v_l  = None
 		self.heading = 0
@@ -62,7 +62,9 @@ class Car_controller(object):
 			return # incorrect data
 		if len(data_list) != 2:
 			return # incorrect array size
-		if not in_range(data_list, -0.12, 0.12):
+		# We use 36 RPM motor -> 36/60*2*pi*0.032 = 0.12 m/s
+		# Take two times as limitation
+		if not in_range(data_list, -0.24, 0.24):
 			return # data not in range
 		self.v_r, self.v_l = data_list
 		# dead reckoning
