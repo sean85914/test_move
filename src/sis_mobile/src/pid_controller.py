@@ -154,7 +154,7 @@ class Car_controller(object):
 		self.right_motor.run(right_state)
 		self.left_motor.run(left_state)
 		if pwm_r == 0 and pwm_l == 0:
-			rospy.sleep(0.5)
+			rospy.sleep(1.0)
 	# Shutdown function, call when terminate
 	def shutdown(self):
 		self.sub_cmd.unregister()
