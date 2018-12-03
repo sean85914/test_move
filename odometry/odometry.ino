@@ -7,11 +7,13 @@
 #define SPD_INT_R2 9
 #define RADIUS 0.032 // Wheel radius, in meter
 #define CPR 2970.0   // Encoder Counts Per Revolution
+#define WIDTH 0.179 // Two wheel distance, in meter
 
 volatile long encoder_pre_L, encoder_pre_R; // present
 volatile long encoder_pos_L, encoder_pos_R; // post
 long time_;
 double hz = 80; // 80Hz
+double theta = 0; // heading, in rad
 
 void setup()
 {
@@ -33,17 +35,25 @@ void loop()
   if(millis() - time_ >= 1000/hz) {
     long dt = (millis() - time_); // Time difference, in ms
     time_ = millis(); // Update time
-    // Calculate linear velocity
-    double v_l = (encoder_pre_L - encoder_pos_L)*2*PI/CPR * RADIUS / dt * 1000 * 100; // cm/s
-    double v_r = (encoder_pre_R - encoder_pos_R)*2*PI/CPR * RADIUS / dt * 1000 * 100;
+    // Calculate distance two wheel traversed and linear velocity
+    double s_l = (encoder_pre_L - encoder_pos_L)*2*PI/CPR * RADIUS;
+    double s_r = (encoder_pre_R - encoder_pos_R)*2*PI/CPR * RADIUS;
+    double v_l = s_l / dt * 1000 * 100; // cm/s
+    double v_r = s_r / dt * 1000 * 100;
+    // Calculate heading
+    theta += (s_r - s_l) / WIDTH;
+    // In range [0, 2*PI)
+    if(theta >= 2*PI) theta -= 2*PI;
+    if(theta < 0) theta += 2*PI;
     // Update encoder
     encoder_pos_L = encoder_pre_L;
     encoder_pos_R = encoder_pre_R;
     // Print data in serial
     // Data format:
-    // v_r v_l
+    // v_r v_l heading
     Serial.print(v_r); Serial.print(" ");
-    Serial.println(v_l);
+    Serial.print(v_l); Serial.print(" ");
+    Serial.println(theta*100); // Times 100
   }
 }
 
