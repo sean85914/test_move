@@ -38,46 +38,46 @@ int main(int argc, char** argv)
   ROS_INFO("Sending first goal");
   ac.sendGoal(goal);
   // Wait for result with 15 seconds, if fail, cancel the goal
-  ac.waitForResult(ros::Duration(20.0));
+  ac.waitForResult(ros::Duration());
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach first waypoint");
   else{
     ROS_INFO("Failed to reach forst waypoint");
     ac.cancelGoal();
-  }
+  } ros::Duration(1.0).sleep();
   // Second, move 1 meter to the left, heading set to pi/2
   goal = getGoal(1.0, 1.0, 0.0, 0.0, 0.707, 0.707);
   ROS_INFO("Sending second goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration(20.0));
+  ac.waitForResult(ros::Duration());
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach second waypoint");
   else{
     ROS_INFO("Failed to reach second waypoint");
     ac.cancelGoal();
-  }
+  } ros::Duration(1.0).sleep();
   // Third, return to the 1 meter left from the orgin with heading pi
   goal = getGoal(0.0, 1.0, 0.0, 0.0, 1.0, 0.0);
   ROS_INFO("Sending third goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration(20.0));
+  ac.waitForResult(ros::Duration());
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach third waypoint");
   else{
     ROS_INFO("Failed to reach third waypoint");
     ac.cancelGoal();
-  }
+  } ros::Duration(1.0).sleep();
   // Finally, return to the origin with heading 3pi/2
   goal = getGoal(0.0, 0.0, 0.0, 0.0, -0.707, 0.707);
   ROS_INFO("Sending fourth goal");
   ac.sendGoal(goal);
-  ac.waitForResult(ros::Duration(20.0));
+  ac.waitForResult(ros::Duration());
   if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     ROS_INFO("Reach fourth waypoint");
   else{
     ROS_INFO("Failed to reach fourth waypoint");
     ac.cancelGoal();
-  }
+  } ros::Duration(1.0).sleep();
   // End process
   return 0;
 }
