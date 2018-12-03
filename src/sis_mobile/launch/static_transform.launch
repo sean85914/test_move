@@ -1,6 +1,16 @@
 <!-- -*- XML -*- -->
 <launch>
+  <!-- All static transformation should be placed here -->
+  <!-- Map information related -->
+  <node pkg="tf" name="map2tag0" type="static_transform_publisher" args="3.0 0.3 0.32 1.57 0.00 -1.57 map tag0_gt 100" >
+  <node pkg="tf" name="map2tag1" type="static_transform_publisher" args="3.0 0.9 0.32 1.57 0.00 -1.57 map tag1_gt 100" >
+  <node pkg="tf" name="map2tag2" type="static_transform_publisher" args="3.0 1.5 0.32 1.57 0.00 -1.57 map tag2_gt 100" >
+  <node pkg="tf" name="map2tag3" type="static_transform_publisher" args="2.0 1.8 0.32 1.57 0.00  0.00 map tag3_gt 100" >
+  <node pkg="tf" name="map2tag4" type="static_transform_publisher" args="1.0 1.8 0.32 1.57 0.00  0.00 map tag4_gt 100" >
+  <node pkg="tf" name="map2tag5" type="static_transform_publisher" args="0.0 0.9 0.32 1.57 0.00  1.57 map tag5_gt 100" >
+  <node pkg="tf" name="map2tag6" type="static_transform_publisher" args="1.0 0.0 0.32 1.57 0.00  3.14 map tag6_gt 100" >
+  <node pkg="tf" name="map2tag7" type="static_transform_publisher" args="2.0 0.0 0.32 1.57 0.00  3.14 map tag7_gt 100" >
   <!-- Transform from map to odom and car_base to po_camera -->
-  <node pkg="tf" name="map2odom" type="static_transform_publisher" args="0 0 0 0 0 0 1 map odom 100" />
+  <node pkg="tf" name="map2odom" type="static_transform_publisher" args="0.5 0.9 0.00 0.00 0.00  3.14 map odom 100" /> <!-- TBD -->
   <node pkg="tf" name="carbase2picam" type="static_transform_publisher" args="-0.019 0 0.37 -1.57 0 -1.57 car_base pi_camera 100"/>
 </launch>
