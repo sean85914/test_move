@@ -102,16 +102,13 @@ class Car_controller(object):
 		odom = Odometry()
 		odom.header.frame_id = 'odom'
 		odom.header.stamp = rospy.Time.now()
-		odom.child_frame_id = 'car_base'
 		odom.pose.pose.orientation.z = sin(self.heading/2)
 		odom.pose.pose.orientation.w = cos(self.heading/2)
-		odom.twist.twist.linear.x = v
 		odom.pose.pose.position.x = self.x
 		odom.pose.pose.position.y = self.y
 		odom.pose.covariance[0] = 0.1 # X
 		odom.pose.covariance[7] = 0.1 # Y
-		odom.pose.covariance[35] = 0.2 # RZ
-		odom.twist.covariance[0] = 0.2 # VX
+		odom.pose.covariance[35] = 0.4 # RZ
 		self.pub_odom.publish(odom)
 		# Visulize the path robot traversed 
 	# sub_cmd callback, get two wheel desired velocity and try to complete it through PID controllers

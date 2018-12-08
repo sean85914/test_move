@@ -12,6 +12,7 @@ void cb(const apriltags2_ros::AprilTagDetectionArray &msg)
   if(len == 0) return;
   geometry_msgs::PoseWithCovarianceStamped car_pose;
   car_pose.header = msg.header;
+  car_pose.header.frame_id = "map";
   double pose_x = 0, pose_y = 0, pose_z = 0,
          pose_qx = 0, pose_qy = 0, pose_qz = 0, pose_qw = 0;
   for(int i=0; i < len; ++i){
