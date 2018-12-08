@@ -8,13 +8,13 @@
     <rosparam unless="$(arg mecanum)">
       base_local_planner: base_local_planner/TrajectoryPlannerROS
     </rosparam>
-    <rosparam file="$(find sis_mobile)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find sis_mobile)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find sis_mobile)/config/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find sis_mobile)/config/local_costmap_params.yaml"  command="load" />
-    <rosparam unless="$(arg mecanum)" file="$(find sis_mobile)/config/base_local_planner_params.yaml" command="load" />
-    <rosparam if="$(arg mecanum)" file="$(find sis_mobile)/config/sw_base_local_planner_params.yaml" command="load" />
-    <param name="controller_frequency" value="10.0"/>
+    <rosparam file="$(find sis_mobile)/config/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find sis_mobile)/config/move_base/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find sis_mobile)/config/move_base/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find sis_mobile)/config/move_base/local_costmap_params.yaml"  command="load" />
+    <rosparam unless="$(arg mecanum)" file="$(find sis_mobile)/config/move_base/base_local_planner_params.yaml" command="load" />
+    <rosparam if="$(arg mecanum)" file="$(find sis_mobile)/config/move_base/sw_base_local_planner_params.yaml" command="load" />
+    <param name="controller_frequency" value="5.0"/>
     <param name="recovery_behavior_enabled" value="false"/>
   </node>
 </launch>

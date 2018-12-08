@@ -4,12 +4,17 @@
   <arg name="mecanum" default="false"/>
   <arg name="map_file_name" default="sis_competition_map.yaml" />
   <!-- Include all nodes related to the setup of mobile platform -->
+  <!-- Static transform -->
   <include file="$(find sis_mobile)/launch/static_transform.launch" />
-  <include file="$(find sis_mobile)/launch/map.launch">
-    <arg name="map_file_name" value="$(arg map_file_name)" />
-  </include>
+  <!-- Robot controller -->
   <include file="$(find sis_mobile)/launch/controller.launch">
     <arg name="port" value="$(arg port)"/>
     <arg name="mecanum" value="$(arg mecanum)"/>
   </include>
+  <!-- Localization -->
+  <include file="$(find sis_mobile)/launch/localization.launch"/>
+  <!-- Camera -->
+  <include file="$(find pi_camera)/launch/camera.launch"/>
+  <!-- Apriltag -->
+  <include file="$(find sis_mobile)/launch/apriltags.launch"/>
 </launch>
