@@ -11,8 +11,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   move_base_msgs
   actionlib
+  tf
+  apriltags2_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -105,10 +108,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES sis_mobile
-#  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES sis_mobile
+  CATKIN_DEPENDS roscpp rospy std_msgs apriltags2_ros
 )
 
 ###########
@@ -118,8 +120,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+  apriltags2_ros
 )
 
 ## Declare a C++ library
@@ -153,6 +156,11 @@ include_directories(
 # )
 add_executable(move_base_client src/move_base_client.cpp)
 target_link_libraries(move_base_client ${catkin_LIBRARIES})
+
+add_executable(pose_from_tags src/pose_from_tags.cpp)
+add_dependencies(pose_from_tags ${catkin_EXPORTED_TARGETS} apriltags2ros_gencpp)
+target_link_libraries(pose_from_tags ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
