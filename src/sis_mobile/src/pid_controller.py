@@ -36,6 +36,8 @@ class Car_controller(object):
 		self.pid_r.output_limits = (-255, 255)
 		self.pid_l.output_limits = (-255, 255) # PWM limit
 		self.port = rospy.get_param("~port", '/dev/ttyACM0') # Arduino port from parameter server
+		self.pub_tf = rospy.get_param("~pub_tf", False) # If true, broadcasr transform from
+														# odom to car_base
 		self.ard = serial.Serial(self.port, 57600)
 		# Flush serial data
 		for i in range(0, 20):
@@ -43,7 +45,8 @@ class Car_controller(object):
 		# Subscriber and publisher
 		self.pub_odom = rospy.Publisher('/wheel_odom', Odometry, queue_size = 10)
 		self.sub_cmd  = rospy.Subscriber('/cmd_vel', Twist, self.cmd_cb,  queue_size = 1)
-		self.tf_br = tf.TransformBroadcaster()
+		if self.pub_tf:
+			self.tf_br = tf.TransformBroadcaster()
 		rospy.Timer(rospy.Duration(1/100.), self.read_data) # 100Hz
 		self.v_r = None
 		self.v_l  = None
@@ -88,22 +91,27 @@ class Car_controller(object):
 			self.x += v*dt*cth
 			self.y += v*dt*sth
 		self.heading = heading
-		# Broadcast transform from odom to car_base
-		self.tf_br.sendTransform((self.x, self.y, 0),
-			      (0, 0, sin(self.heading/2), cos(self.heading/2)),
-			      rospy.Time.now(),
-			      'car_base',
-			      'odom') 
+		if self.pub_tf:
+			# Broadcast transform from odom to car_base
+			self.tf_br.sendTransform((self.x, self.y, 0),
+			                         (0, 0, sin(self.heading/2), cos(self.heading/2)),
+			                         rospy.Time.now(),
+			                         'car_base',
+			                         'odom') 
 		# Publish odometry message
 		odom = Odometry()
 		odom.header.frame_id = 'odom'
 		odom.header.stamp = rospy.Time.now()
-		#odom.child_frame_id = 'car_base'
+		odom.child_frame_id = 'car_base'
 		odom.pose.pose.orientation.z = sin(self.heading/2)
 		odom.pose.pose.orientation.w = cos(self.heading/2)
-		#odom.twist.twist.linear.x = v
+		odom.twist.twist.linear.x = v
 		odom.pose.pose.position.x = self.x
 		odom.pose.pose.position.y = self.y
+		odom.pose.covariance[0] = 0.1 # X
+		odom.pose.covariance[7] = 0.1 # Y
+		odom.pose.covariance[35] = 0.2 # RZ
+		odom.twist.covariance[0] = 0.2 # VX
 		self.pub_odom.publish(odom)
 		# Visulize the path robot traversed 
 	# sub_cmd callback, get two wheel desired velocity and try to complete it through PID controllers
