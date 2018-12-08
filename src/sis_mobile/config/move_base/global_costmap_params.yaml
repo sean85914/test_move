@@ -7,3 +7,4 @@ global_costmap:
   width: 6.0
   height: 6.0
   resolution: 0.1
+  transform_tolerance: 2.0
