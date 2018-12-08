@@ -2,8 +2,12 @@
 <launch>
   <arg name="port" default="/dev/ttyACM0"/>
   <arg name="mecanum" default="false"/>
+  <arg name="map_file_name" default="sis_competition_map.yaml" />
   <!-- Include all nodes related to the setup of mobile platform -->
   <include file="$(find sis_mobile)/launch/static_transform.launch" />
+  <include file="$(find sis_mobile)/launch/map.launch">
+    <arg name="map_file_name" value="$(arg map_file_name)" />
+  </include>
   <include file="$(find sis_mobile)/launch/controller.launch">
     <arg name="port" value="$(arg port)"/>
     <arg name="mecanum" value="$(arg mecanum)"/>

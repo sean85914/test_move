@@ -12,3 +12,4 @@ DWAPlannerPOS:
   min_rot_vel: 0
   yaw_goal_tolerance: 0.1
   xy_goal_tolerance: 0.2
+  latch_xy_goal_tolerance: false
