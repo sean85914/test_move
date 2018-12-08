@@ -47,12 +47,12 @@ void cb(const apriltags2_ros::AprilTagDetectionArray &msg)
   car_pose.pose.pose.orientation.y = quat_norm.getY();
   car_pose.pose.pose.orientation.z = quat_norm.getZ();
   car_pose.pose.pose.orientation.w = quat_norm.getW();
-  car_pose.pose.covariance[0] = 0.05; // X
-  car_pose.pose.covariance[7] = 0.05; // Y
+  car_pose.pose.covariance[0] = 0.1; // X
+  car_pose.pose.covariance[7] = 0.1; // Y
   car_pose.pose.covariance[14] = 100; // Z
   car_pose.pose.covariance[21] = 100; // RX
   car_pose.pose.covariance[28] = 100; // RY
-  car_pose.pose.covariance[35] = 0.1; // RZ
+  car_pose.pose.covariance[35] = 0.2; // RZ
   pub_car_pose.publish(car_pose);  
 }
 int main(int argc, char** argv)
