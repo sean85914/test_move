@@ -11,6 +11,6 @@
   <node pkg="tf" name="map2tag6" type="static_transform_publisher" args="1.0 0.13 0.312  3.14 0.00 1.57 map tag6_gt 100" />
   <node pkg="tf" name="map2tag7" type="static_transform_publisher" args="2.0 0.13 0.3095  3.14 0.00 1.57 map tag7_gt 100" />
   <!-- Transform from map to odom and car_base to pi_camera -->
-  <node pkg="tf" name="tag2odom" type="static_transform_publisher" args="0 0 0 0 0 0 1 map odom 100" /> <!-- TBD -->
+  <node pkg="tf" name="tag2odom" type="static_transform_publisher" args="1.0 0.9 0 0 0 0 1 map odom 100" /> <!-- TBD -->
   <node pkg="tf" name="carbase2picam" type="static_transform_publisher" args="0.03 0.013 0.363 -1.57 0 -1.57 car_base pi_camera 100"/> <!-- TBD -->
 </launch>
