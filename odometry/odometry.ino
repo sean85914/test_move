@@ -7,7 +7,8 @@
 #define SPD_INT_R2 9
 #define RADIUS 0.032 // Wheel radius, in meter
 #define CPR 2970.0   // Encoder Counts Per Revolution
-#define WIDTH 0.179 // Two wheel distance, in meter
+#define WIDTH 0.172 // Two wheel distance, in meter
+// Kuo's one 0.179
 
 volatile long encoder_pre_L, encoder_pre_R; // present
 volatile long encoder_pos_L, encoder_pos_R; // post
