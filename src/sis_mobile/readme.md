@@ -59,6 +59,7 @@ After you run the node, the robot will start to traverse around a 0.6 meter squa
     * yaw_goal_tolerance: tolerance in radians for the controller in yaw/rotation when achieving its goal 
     * xy_goal_tolerance: tolerance in meters for the controller in the x & y distance when achieving a goal
     * latch_xy_goal_tolerance: if goal tolerance is latched, if the robot ever reaches the goal xy location it will simply rotate in place, even if it ends up outside the goal tolerance while it is doing so
+    ###### This file is similiar with base_local_planner_params.yaml while this is for mecanum mobile robot
 * map related
   * sis_competition_map.yaml
     * image: path to the image file containing the occupancy data
@@ -84,7 +85,6 @@ After you run the node, the robot will start to traverse around a 0.6 meter squa
     * odom0_twist_rejection_threshold:
     * pose0:
     * use_control
-###### This file is similiar with base_local_planner_params.yaml while this is for mecanum mobile robot
 ## Robot spec
 * Motors: 12V, 36RPM  
-#TODO: robot engineering drawing
+#TODO: robot chassis drawing
