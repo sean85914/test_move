@@ -30,19 +30,20 @@ def in_range(value_list, low, up):
 class Car_controller(object):
 	def __init__(self):
 		self.motorhat = Adafruit_MotorHAT(0x60)
-		self.fr = self.motorhat.getMotor(1) # Front left
-		self.fl = self.motorhat.getMotor(2) # Front right
-		self.rr = self.motorhat.getMotor(3) # Rear left
-		self.rl = self.motorhat.getMotor(4) # Rear right
-		self.pid_fr = PID(30.0, 10.0, 10.0, sample_time = 0.05)
+		self.fl = self.motorhat.getMotor(1) # Front left
+		self.fr = self.motorhat.getMotor(2) # Front right
+		self.rl = self.motorhat.getMotor(3) # Rear left
+		self.rr = self.motorhat.getMotor(4) # Rear right
 		self.pid_fl = PID(30.0, 10.0, 10.0, sample_time = 0.05)
-		self.pid_rr = PID(30.0, 10.0, 10.0, sample_time = 0.05)
+		self.pid_fr = PID(30.0, 10.0, 10.0, sample_time = 0.05)
 		self.pid_rl = PID(30.0, 10.0, 10.0, sample_time = 0.05)
-		self.pid_fr.output_limits = (-255, 255)
-		self.pid_fl.putput_limits = (-255, 255)
-		self.pid_rr.output_limits = (-255, 255)
+		self.pid_rr = PID(30.0, 10.0, 10.0, sample_time = 0.05)
+		self.pid_fl.output_limits = (-255, 255)
+		self.pid_fr.putput_limits = (-255, 255)
 		self.pid_rl.output_limits = (-255, 255)
+		self.pid_rr.output_limits = (-255, 255)
 		self.port = rospy.get_param('~port', '/dev/ttyACM0')
+		self.pub_tf = rospy.getParam('~pub_tf', False) 
 		self.ard = serial.Serial(self.port, 57600)
 		# Flush serial data
 		for i in range(0, 20):
@@ -50,13 +51,14 @@ class Car_controller(object):
 		# Subscriber and publisher
 		self.pub_odom = rospy.Publisher('/wheel_odom', Odometry, queue_size = 10)
 		self.sub_cmd = rospy.Subscriber('/cmd_vel', Twist, self.cmd_cb, queue_size = 1)
-		self.tf_br = tf.TransformBroadcaster()
+		if self.pub_tf:
+			self.tf_br = tf.TransformBroadcaster()
 		self.time = rospy.Time.now()
-		rospy.Timer(rospy.Duration(1/60.0), self.read_data) # 60Hz
-		self.w_fr = None 
-		self.w_fl = None
-		self.w_rr = None
+		rospy.Timer(rospy.Duration(1/100.0), self.read_data) # 100Hz
+		self.w_fl = None 
+		self.w_fr = None
 		self.w_rl = None
+		self.w_rr = None
 		self.x = 0
 		self.y = 0
 		self.heading = 0
@@ -89,11 +91,12 @@ class Car_controller(object):
 		self.x = self.x + self.v_x * dt
 		self.y = self.y + self.v_y * dt
 		self.heading = self.heading + self.omega * dt
-		self.tf_br.sendTransform((self.x, self.y, 0), 
-                                         (0, 0, sin(self.heading/2), cos(self.heading/2)),
-                                         rospy.Time.now(),
-                                         'car_base',
-                                         'odom')
+		if self.pub_tf:
+			self.tf_br.sendTransform((self.x, self.y, 0), 
+                                     (0, 0, sin(self.heading/2), cos(self.heading/2)),
+                                     rospy.Time.now(),
+                                     'car_base',
+                                     'odom')
 		# Publish odometry message
 		odom = Odometry()
 		odom.header.frame_id = 'odom'
@@ -186,7 +189,7 @@ class Car_controller(object):
 		self.rl.run(rl_state)
 		self.rr.run(rr_state)
 		if pwm_fl == 0 and pwm_fr == 0 and pwm_rl == 0 and pwm_rr == 0:
-			rospy.sleep(2.0)
+			rospy.sleep(1.0)
 	# Shutdown function, call when terminate
 	def shutdown(self):
 		self.sub_cmd.unregister()
